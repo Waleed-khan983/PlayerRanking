@@ -5,14 +5,21 @@ const router = new express.Router();
 
 router.post("/cricStars", async (req, res) => {
   try {
-    const createStar = cricStar(req.body);
-    const saveStar = await createStar.save();
-    res.status(201).send(saveStar);
-    console.log(saveStar);
+    if (Array.isArray(req.body)) {
+      // Bulk insert
+      const saveStars = await cricStar.insertMany(req.body);
+      res.status(201).send(saveStars);
+    } else {
+      // Single insert
+      const createStar = new cricStar(req.body);
+      const saveStar = await createStar.save();
+      res.status(201).send(saveStar);
+    }
   } catch (error) {
-    res.status(404).send(error);
+    res.status(400).send(error);
   }
 });
+
 
 router.get("/cricStars", async (req, res) => {
   try {
